@@ -1,0 +1,118 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Coin Details</h1>
+
+<div class="row">
+  <div class="col s6">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{{ coin.name }}</span>
+        <p>Breed: {{ coin.condition }}</p>
+        <p>Description: {{ coin.description }}</p>
+        {% if coin.age > 0 %}
+        <p>Age: {{ coin.age }}</p>
+        {% else %} {% endif %}
+      </div>
+      <div class="card-action">
+        <a href="{% url 'coins_update' coin.id %}">Edit</a>
+        <a href="{% url 'coins_delete' coin.id %}">Delete</a>
+      </div>
+    </div>
+    <div class="col s6">
+      <form action="{% url 'add_offer' coin.id %}" method="post">
+        {% csrf_token %} {{ offer_form.as_p }}
+        <input type="submit" class="btn" value="Add Offer" />
+      </form>
+      <br />
+      {% if coin.offered_for_today %}
+      <div class="card-panel teal-text center-align">
+        {{coin.name}} has been offered enough for today
+      </div>
+      {% else %}
+      <div class="card-panel red-text center-align">
+        {{coin.name}} has been sitting for a while
+      </div>
+      {% endif %}
+      <table class="striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Kind</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for offer in coin.offer_set.all %}
+          <tr>
+            <td>{{offer.date}}</td>
+            <td>{{offer.get_kind_display}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr />
+  <div class="row">
+    <div class="col s6">
+      <h3>{{ coin.name }}'s Addons</h3>
+      {% if coin.addons.count %} {% for addon in coin.addons.all %}
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">
+            A <span style="color: {{ addon.color }}">{{ addon.color }}</span> {{
+            addon.name }}
+          </span>
+        </div>
+        <div class="card-action">
+          <form action="{% url 'addon' coin.id addon.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn">Remove</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <h5>No Addons :(</h5>
+      {% endif %}
+    </div>
+    <!-- Available addons will come after this line -->
+    <div class="col s6">
+      <h3>Available Addons</h3>
+      {% if addon.count %} {% for addon in addon.all %}
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">
+            A <span style="color: {{ addon.color }}">{{ addon.color }}</span> {{
+            addon.name }}
+          </span>
+        </div>
+        <div class="card-action">
+          <form action="{% url 'assoc_addon' coin.id addon.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn">Add</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <h5>{{coin.name}} Already Has All Addons Available</h5>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- JS to create a date picker and init the kind dropdown -->
+  <script>
+    // create a datepicker
+    var dateEl = document.getElementById("id_date");
+    M.Datepicker.init(dateEl, {
+      format: "yyyy-mm-dd",
+      defaultDate: new Date(),
+      setDefaultDate: true,
+      autoClose: true,
+    });
+
+    // initialize the kind select
+    var selectEl = document.getElementById("id_kind");
+    M.FormSelect.init(selectEl);
+  </script>
+  {% endblock %}
+</div>

@@ -1,0 +1,18 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Coin List</h1>
+
+{% for coin in coins %}
+<a href="{% url 'detail' coin.id %}">
+  <div class="card">
+    <div class="card-content">
+      <span class="card-title">{{ coin.name }}</span>
+      <p>Condition: {{ coin.condition }}</p>
+      <p>Description: {{ coin.description }}</p>
+      {% if coin.age > 0 %}
+      <p>Age: {{ coin.age }}</p>
+      {% else %} {% endif %}
+    </div>
+  </div>
+</a>
+{% endfor %} {% endblock %}
